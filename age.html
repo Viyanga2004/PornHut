@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Age Restriction</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #000;
+            color: #fff;
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            text-align: center;
+        }
+        
+        .message-container {
+            max-width: 90%;
+            padding: 20px;
+            border: 2px solid #ff0000;
+            border-radius: 8px;
+            background-color: rgba(0, 0, 0, 0.8);
+        }
+        
+        .message {
+            font-size: clamp(16px, 4vw, 24px);
+            color: #fff;
+            margin: 0;
+            overflow: hidden;
+            white-space: nowrap;
+            text-overflow: ellipsis;
+        }
+        
+        @media (max-width: 480px) {
+            .message {
+                white-space: normal;
+                text-overflow: clip;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="message-container">
+        <p class="message">This digital playground is strictly 18+ — no kiddos allowed!</p>
+    </div>
+</body>
+</html>

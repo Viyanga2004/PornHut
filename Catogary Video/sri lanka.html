@@ -1,0 +1,664 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PornHut - Video Streaming</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+        
+        body {
+            background-color: #000;
+            color: #ffeb3b; /* Yellow text */
+        }
+        
+        /* Navigation Bar */
+        nav {
+            background-color: #1b1a1a;
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #f3f3ef; /* Yellow border */
+        }
+        
+        .logo {
+            font-size: 24px;
+            font-weight: bold;
+            color: #ffeb3b; /* Yellow */
+        }
+        
+        .nav-links {
+            display: flex;
+            gap: 20px;
+        }
+        
+        .nav-links a {
+            color: #f3f2eb; /* Yellow */
+            text-decoration: none;
+            font-size: 16px;
+        }
+        
+        .nav-links a:hover {
+            color: #d0dd19;
+        }
+        
+        .search-container {
+            display: flex;
+            align-items: center;
+        }
+        
+        .search-container input {
+            padding: 8px 15px;
+            border: 1px solid #e7e6df; /* Yellow */
+            border-radius: 20px;
+            background-color: #222;
+            color: #b3a639; /* Yellow */
+            margin-right: 10px;
+            width: 200px;
+        }
+        
+        .search-container button {
+            padding: 8px 15px;
+            background-color: #e9e8e5; /* Yellow */
+            color: #000;
+            border: none;
+            border-radius: 20px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        
+        /* Main Content */
+        .container {
+            padding: 20px;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        
+        h1 {
+            margin-bottom: 20px;
+            font-size: 24px;
+            color: #f8f8f6; /* Yellow */
+            border-bottom: 1px solid #f0f005; /* Yellow */
+            padding-bottom: 10px;
+        }
+        
+        .video-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 25px;
+        }
+        
+        .video-card {
+            background-color: #111;
+            border-radius: 6px;
+            overflow: hidden;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            border: 1px solid #333;
+        }
+        
+        .video-card:hover {
+            border-color: #f7f6f4; /* Yellow */
+            box-shadow: 0 0 15px rgba(255, 235, 59, 0.3); /* Yellow glow */
+        }
+        
+        .thumbnail-container {
+            position: relative;
+            width: 100%;
+            padding-top: 56.25%; /* 16:9 aspect ratio */
+            background-color: #222;
+            overflow: hidden;
+        }
+        
+        .thumbnail {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #777;
+            font-size: 50px;
+            background-size: cover;
+            background-position: center;
+        }
+        
+        .play-icon {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: #ffeb3b; /* Yellow */
+            font-size: 50px;
+            text-shadow: 0 0 10px rgba(0,0,0,0.7);
+        }
+        
+        .duration {
+            position: absolute;
+            bottom: 8px;
+            right: 8px;
+            background-color: rgba(0,0,0,0.8);
+            padding: 3px 6px;
+            border-radius: 3px;
+            font-size: 12px;
+            color: #e7e7e2; /* Yellow */
+            border: 1px solid #f1f1f1; /* Yellow */
+        }
+        
+        .video-info {
+            padding: 12px;
+        }
+        
+        .video-title {
+            color: #eeeeec; /* Yellow */
+            font-size: 15px;
+            margin-bottom: 5px;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            height: 40px;
+            line-height: 1.3;
+        }
+        
+        .video-views {
+            color: #e9e7e3; /* Darker yellow */
+            font-size: 12px;
+        }
+        
+        /* Video Popup */
+        .popup-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.95);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s;
+        }
+        
+        .popup-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+        
+        .video-popup {
+            width: 85%;
+            max-width: 1000px;
+            background-color: #000;
+            border: 3px solid #f1f1ee; /* Yellow */
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 0 30px rgba(255, 235, 59, 0.3); /* Yellow glow */
+        }
+        
+        .video-player-container {
+            position: relative;
+            width: 100%;
+            padding-top: 56.25%; /* 16:9 aspect ratio */
+        }
+        
+        .video-player {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+        
+        .close-btn {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background-color: rgba(0,0,0,0.8);
+            color: #eeede7; /* Yellow */
+            border: 2px solid #ffeb3b; /* Yellow */
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            font-size: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            z-index: 10;
+            font-weight: bold;
+        }
+        
+        .close-btn:hover {
+            background-color: #ffeb3b; /* Yellow */
+            color: #000;
+        }
+        
+        /* Footer */
+        footer {
+            background-color: #111;
+            padding: 25px 20px;
+            text-align: center;
+            margin-top: 40px;
+            border-top: 1px solid #f1f1ed; /* Yellow */
+        }
+        
+        .footer-links {
+            margin-bottom: 10px;
+        }
+        
+        .footer-links a {
+            color: #ffc107; /* Darker yellow */
+            text-decoration: none;
+            margin: 0 15px;
+            font-size: 14px;
+        }
+        
+        .footer-links a:hover {
+            color: #ffeb3b; /* Bright yellow */
+        }
+        
+        .copyright {
+            color: #999896; /* Darker yellow */
+            font-size: 12px;
+            line-height: 1.5;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation Bar -->
+    <nav>
+        <div class="logo">PornHut</div>
+        <div class="nav-links">
+            <a href="PornHut/main.html">Home</a>
+            <a href="#">Videos</a>
+            <a href="#">Categories</a>
+            <a href="#">Resources</a>
+        </div>
+        
+    </nav>
+    
+    <!-- Main Content -->
+    <div class="container">
+        <h1><center>Sri Lankan Videos</center> </h1>
+        <div class="video-grid">
+
+
+
+
+<!-- Video Card 2 -->
+<div class="video-card" onclick="openPopup('https://www.pornhub.com/embed/6629d9fac6417')">
+    <div class="thumbnail-container">
+        <div class="thumbnail">
+            <img src="https://ei.phncdn.com/videos/202404/25/451554211/original/(m=q83L1IZbeafTGgaaaa)(mh=zZxdBsuPlsOyDoas)0.jpg" alt="Indian hardcore" class="thumbnail-img">
+            <div class="play-icon"></div>
+            <div class="duration">19:41</div>
+        </div>
+    </div>
+    <div class="video-info">
+        <div class="video-title">සෙව්වන්දි අක්කි ඔයාව දකිද්දී මට නගිනවා Sri Lankan Hot Neighbor get my Crampie bigger see her bigboobs</div>
+        <div class="video-views">684K views</div>
+    </div>
+</div>
+
+
+
+
+
+<!-- Video Card 2 -->
+<div class="video-card" onclick="openPopup('https://www.pornhub.com/embed/664f835e47f70')">
+    <div class="thumbnail-container">
+        <div class="thumbnail" style="background-image: url('https://ei.phncdn.com/videos/202405/23/452866811/thumbs_52/(m=eafTGgaaaa)(mh=qQ9fWefSEcXDqmhe)1.jpg')">
+            <div class="play-icon"></div>
+            <div class="duration">13:53</div>
+        </div>
+    </div>
+    <div class="video-info">
+        <div class="video-title"> ටානි නංගිගෙ අලුත්ම එක / Girl fuck after lip kiss
+        </div>
+        <div class="video-views">1.3M views</div>
+    </div>
+</div>
+
+
+
+
+   
+            <!-- Video Card 2 -->
+            <div class="video-card" onclick="openPopup('https://www.pornhub.com/embed/678ab202ccbe6')">
+                <div class="thumbnail-container">
+                    <div class="thumbnail" style="background-image: url(' https://ei.phncdn.com/videos/202501/17/463327335/original/(m=eafTGgaaaa)(mh=Kzdm2PcPpBCe__um)16.jpg      ')">
+                        <div class="play-icon"></div>
+                        <div class="duration">12:57</div>
+                    </div>
+                </div>
+                <div class="video-info">
+                    <div class="video-title">අනේ දැන් එයා එයි - Cheating College Teen Fucked Hard While Boyfriend is waiting - Sri Lanka
+                    </div>
+                    <div class="video-views">166K views</div>
+                </div>
+            </div>
+
+
+
+
+
+            
+            <!-- Video Card 2 -->
+            <div class="video-card" onclick="openPopup('https://www.pornhub.com/embed/65fc55a5ec23b')">
+                <div class="thumbnail-container">
+                    <div class="thumbnail" style="background-image: url(' https://ei.phncdn.com/videos/202403/21/449910761/original/(m=qJ7U6-YbeafTGgaaaa)(mh=ccPSZIaRDcZWebsg)0.jpg      ')">
+                        <div class="play-icon"></div>
+                        <div class="duration">15:58</div>
+                    </div>
+                </div>
+                <div class="video-info">
+                    <div class="video-title">මේක හැමොටම අමාරු කාලයක් බෝඩිමේ කුලිය ගෙවපු නංගී Sri Lanka Sister Who House Paid The Rent Dirty Sex
+                    </div>
+                    <div class="video-views">495K views</div>
+                </div>
+            </div>
+
+
+
+
+            
+            <!-- Video Card 3 -->
+            <div class="video-card" onclick="openPopup('https://www.pornhub.com/embed/67e49b39754b9')">
+                <div class="thumbnail-container">
+                    <div class="thumbnail" style="background-image: url('https://ei.phncdn.com/videos/202503/27/466370425/thumbs_20/(m=eafTGgaaaa)(mh=UDO2v_X6gfSwdMIF)4.jpg      ')">
+                        <div class="play-icon"></div>
+                        <div class="duration">08:26</div>
+                    </div>
+                </div>
+                <div class="video-info">
+                    <div class="video-title">සැප කදක් මෙහෙම කටට අරන් සැප දෙද්දි බඩු පනින් නැතුව තියෙයිද / Deep blowjob and cum in hands suddenly
+                    </div>
+                    <div class="video-views">120K views</div>
+                </div>
+            </div>
+            
+            <!-- Video Card 4 -->
+            <div class="video-card" onclick="openPopup('https://www.pornhub.com/embed/6491ebc18a4a2')">
+                <div class="thumbnail-container">
+                    <div class="thumbnail" style="background-image: url('https://ei.phncdn.com/videos/202306/20/433937961/original/(m=eafTGgaaaa)(mh=PPx78hlmnDL4L-t0)1.jpg     ')">
+                        <div class="play-icon"></div>
+                        <div class="duration">15:12</div>
+                    </div>
+                </div>
+                <div class="video-info">
+                    <div class="video-title">කවදාවත් රුම් ගිහින් නැ කීව ඒකි දාපු වැඩ ටික Sri lankan Vergin Gf Surprise Sex Fuck
+                    </div>
+                    <div class="video-views">1.4M views</div>
+                </div>
+            </div>
+            
+            <!-- Video Card 5 -->
+            <div class="video-card" onclick="openPopup('https://www.pornhub.com/embed/66ec781b7d471')">
+                <div class="thumbnail-container">
+                    <div class="thumbnail" style="background-image: url(' https://ei.phncdn.com/videos/202409/19/457998851/thumbs_5/(m=eafTGgaaaa)(mh=Ft8LtUAuMZVaMZhM)10.jpg         ')">
+                        <div class="play-icon"></div>
+                        <div class="duration">14:40</div>
+                    </div>
+                </div>
+                <div class="video-info">
+                    <div class="video-title">අක්කට පෙන්නම නංගීට හිකුවා සිංහල වොයිස් - Sri lankan Cuckold wife caught Husband fucking her Friend
+                    </div>
+                    <div class="video-views">587K views</div>
+                </div>
+            </div>
+            
+
+
+
+
+
+
+     <!-- Video Card 9 -->
+     <div class="video-card" onclick="openPopup('https://www.pornhub.com/embed/6513369a41822')">
+        <div class="thumbnail-container">
+            <div class="thumbnail" style="background-image: url(' https://ei.phncdn.com/videos/202309/26/440154561/original/(m=q6PSNXYbeafTGgaaaa)(mh=9tHrqlBiVQMbuGNg)0.jpg       ')">
+                <div class="play-icon"></div>
+                <div class="duration">16:10</div>
+            </div>
+        </div>
+        <div class="video-info">
+            <div class="video-title">කුඩම්මා ආසයිද මගේ එකට Sri lanka stepmom sex with stepson Creampie she need hard fuck again new xxx
+
+            </div>
+            <div class="video-views">1.3M views</div>
+        </div>
+    </div>
+
+
+
+
+
+
+
+
+     <!-- Video Card 10 -->
+     <div class="video-card" onclick="openPopup('https://www.pornhub.com/embed/66bb67a2c70aa   ')">
+        <div class="thumbnail-container">
+            <div class="thumbnail" style="background-image: url(' https://ei.phncdn.com/videos/202408/13/456448201/original/(m=qJ043RZbeafTGgaaaa)(mh=bgCDwmSSSCnnMcKu)0.jpg         ')">
+                <div class="play-icon"></div>
+                <div class="duration">11:39</div>
+            </div>
+        </div>
+        <div class="video-info">
+            <div class="video-title">  ශ්‍රී ලාංකිකයන් - Step Brother Accidentally Fucked Step Sister Thinking She was Wife.
+
+            </div>
+            <div class="video-views">665K views</div>
+        </div>
+    </div>
+
+
+
+
+
+
+
+
+     <!-- Video Card 11 -->
+     <div class="video-card" onclick="openPopup('  https://www.pornhub.com/embed/648213ce7698c  ')">
+        <div class="thumbnail-container">
+            <div class="thumbnail" style="background-image: url('  https://ei.phncdn.com/videos/202306/08/433155491/original/(m=qT2YMOYbeafTGgaaaa)(mh=n_GHb_ucB5wF-VwX)0.jpg      ')">
+                <div class="play-icon"></div>
+                <div class="duration">10:11</div>
+            </div>
+        </div>
+        <div class="video-info">
+            <div class="video-title"> ලියුම් බෙදද්දි සෙට්උන ඇන්ටි පාර Sri Lankan Aunty fuck with young Postmen after delivery letter
+
+            </div>
+            <div class="video-views">490K views</div>
+        </div>
+    </div>
+
+
+
+
+
+
+
+
+
+
+     <!-- Video Card 12 -->
+     <div class="video-card" onclick="openPopup('  ')">
+        <div class="thumbnail-container">
+            <div class="thumbnail" style="background-image: url('https://ei.phncdn.com/videos/202304/10/429252141/original/(m=qM84TJYbeafTGgaaaa)(mh=QZaKW3E-4g8nKpUa)0.jpg       ')">
+                <div class="play-icon"></div>
+                <div class="duration">14:24</div>
+            </div>
+        </div>
+        <div class="video-info">
+            <div class="video-title"> මහරගම ස්පා එකේ පොඩි කෑල්ල සදුනි Sri lanka new Maharagama Spa Sex Slut Saduni xxx
+
+            </div>
+            <div class="video-views">1.3M views</div>
+        </div>
+    </div>
+
+
+
+         
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+            <!-- Video Card 6 -->
+            <div class="video-card" onclick="openPopup('https://www.pornhub.com/embed/64bfee8369ec2')">
+                <div class="thumbnail-container">
+                    <div class="thumbnail" style="background-image: url('     https://ei.phncdn.com/videos/202307/25/436157011/original/(m=qZXQHSYbeafTGgaaaa)(mh=myhegQGjGA4lQLQp)0.jpg    ')">
+                        <div class="play-icon"></div>
+                        <div class="duration">06:51</div>
+                    </div>
+                </div>
+                <div class="video-info">
+                    <div class="video-title">Sri lanka tamil girl and shihala boy - hardcore sex in bathroom
+                    </div>
+                    <div class="video-views">1.1M views</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Video Popup -->
+    <div class="popup-overlay" id="popup">
+        <div class="video-popup">
+            <div class="close-btn" onclick="closePopup()">×</div>
+            <div class="video-player-container">
+                <iframe class="video-player" id="videoPlayer" frameborder="0" allowfullscreen allow="autoplay"></iframe>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Footer -->
+    <footer>
+        
+        <div class="copyright">
+            © 2025 Ponthful All rights reserved<br>
+            All Videos Get From the Pornhub.com (Embedded code Option)
+        </div>
+    </footer>
+    
+    <script>
+        // Function to open video popup with embedded player
+        function openPopup(videoUrl) {
+            const popup = document.getElementById('popup');
+            const videoPlayer = document.getElementById('videoPlayer');
+            
+            // Set the embedded video URL
+            videoPlayer.src = videoUrl;
+            
+            // Show popup
+            popup.classList.add('active');
+            
+            // Add escape key listener
+            document.addEventListener('keydown', handleEscapeKey);
+        }
+        
+        // Function to close video popup
+        function closePopup() {
+            const popup = document.getElementById('popup');
+            const videoPlayer = document.getElementById('videoPlayer');
+            
+            // Pause video and remove source
+            videoPlayer.src = '';
+            
+            // Hide popup
+            popup.classList.remove('active');
+            
+            // Remove escape key listener
+            document.removeEventListener('keydown', handleEscapeKey);
+        }
+        
+        // Handle escape key press
+        function handleEscapeKey(e) {
+            if (e.key === 'Escape') {
+                closePopup();
+            }
+        }
+        
+        // Close popup when clicking outside the video
+        document.getElementById('popup').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closePopup();
+            }
+        });
+        
+        // Easy embedded code implementation example
+        function addVideoCard(title, duration, views, thumbnailUrl, embedUrl) {
+            const videoGrid = document.querySelector('.video-grid');
+            
+            const videoCard = document.createElement('div');
+            videoCard.className = 'video-card';
+            videoCard.onclick = function() { openPopup(embedUrl); };
+            
+            videoCard.innerHTML = `
+                <div class="thumbnail-container">
+                    <div class="thumbnail" style="background-image: url('${thumbnailUrl}')">
+                        <div class="play-icon">▶</div>
+                        <div class="duration">${duration}</div>
+                    </div>
+                </div>
+                <div class="video-info">
+                    <div class="video-title">${title}</div>
+                    <div class="video-views">${views}</div>
+                </div>
+            `;
+            
+            videoGrid.appendChild(videoCard);
+        }
+    </script>
+</body>
+</html>
